@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WOLFLIX Masterclass: Daredevil</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:ital,wght@0,300;0,400;0,700;0,900;1,400&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dd: {
+                            black: '#000000',
+                            dark: '#0f0f0f',
+                            panel: '#1a1a1a',
+                            gray: '#374151',
+                            text: '#d1d5db',
+                            red: '#b91c1c',       /* Deep blood red */
+                            redGlow: '#ef4444',
+                            redDark: '#7f1d1d',
+                            white: '#f3f4f6'
+                        }
+                    },
+                    fontFamily: {
+                        noir: ['Cinzel', 'serif'],
+                        base: ['Inter', 'sans-serif'],
+                        mono: ['Courier Prime', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* ==================================================================
+           DYNAMIC THEME ENGINE: NOIR (DEFAULT) vs RADAR SENSE
+           ================================================================== */
+        
+        :root {
+            /* Theme 1: Hell's Kitchen Noir */
+            --bg-top: #0a0a0a;
+            --bg-bot: #171717;
+            --panel-bg: rgba(26, 26, 26, 0.85);
+            --text-main: #d1d5db;
+            --text-muted: #9ca3af;
+            --accent: #b91c1c;
+            --accent-glow: rgba(185, 28, 28, 0.4);
+            --border-color: #3f3f46;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            --btn-text: #ffffff;
+        }
+
+        body.theme-radar {
+            /* Theme 2: Radar Sense (Pitch Black, Red Outlines) */
+            --bg-top: #000000;
+            --bg-bot: #000000;
+            --panel-bg: rgba(0, 0, 0, 0.95); 
+            --text-main: #ef4444;       /* Neon Red Text */
+            --text-muted: #991b1b;      /* Darker Red */
+            --accent: #ef4444;          /* Pure Neon Red */
+            --accent-glow: rgba(239, 68, 68, 0.6);
+            --border-color: #ef4444;    /* Neon Red Borders */
+            --card-shadow: 0 0 20px rgba(239, 68, 68, 0.1);
+            --btn-text: #000000;
+        }
+
+        body {
+            background-color: var(--bg-bot);
+            background-image: linear-gradient(to bottom, var(--bg-top), var(--bg-bot));
+            color: var(--text-main);
+            font-family: var(--font-base);
+            transition: all 0.5s ease;
+            overflow: hidden;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        /* Ambient Rain (Noir Mode Only) */
+        .rain-layer {
+            position: fixed; inset: 0; z-index: 1; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cpath d='M100,0 L101,20 M50,50 L51,70 M150,100 L151,120' stroke='rgba(255,255,255,0.05)' stroke-width='1'/%3E%3C/svg%3E");
+            animation: rainFall 0.4s linear infinite;
+        }
+        body.theme-radar .rain-layer { display: none; }
+        @keyframes rainFall { 0% { background-position: 0 0; } 100% { background-position: -20px 200px; } }
+
+        /* Typography */
+        h1, h2, h3, .font-noir { font-family: 'Cinzel', serif; letter-spacing: 2px; }
+        body.theme-radar h1, body.theme-radar h2, body.theme-radar h3, body.theme-radar .font-noir {
+            font-family: 'Courier Prime', monospace; text-shadow: 0 0 10px var(--accent); letter-spacing: 4px;
+        }
+
+        /* Component Styles */
+        .dd-panel {
+            background: var(--panel-bg); backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color); box-shadow: var(--card-shadow);
+            border-radius: 0.5rem; transition: all 0.5s ease;
+        }
+
+        .dd-btn {
+            background-color: var(--accent); color: var(--btn-text);
+            font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 900;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            box-shadow: 0 0 15px var(--accent-glow); transition: all 0.2s ease;
+            border-radius: 0.25rem; border: 1px solid transparent;
+        }
+        body.theme-radar .dd-btn { font-family: 'Courier Prime', monospace; background-color: transparent; border-color: var(--accent); color: var(--accent); }
+        body.theme-radar .dd-btn:hover { background-color: var(--accent); color: #000; box-shadow: 0 0 25px var(--accent-glow); }
+        
+        .dd-btn:hover:not(.theme-radar .dd-btn) { transform: scale(1.02); filter: brightness(1.2); }
+        .dd-btn:active { transform: scale(0.98); }
+
+        .dd-btn-outline { background-color: transparent; color: var(--text-main); border: 1px solid var(--border-color); transition: all 0.2s; }
+        .dd-btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+        .text-accent { color: var(--accent); transition: color 0.5s ease; }
+        .border-accent { border-color: var(--accent); transition: border-color 0.5s ease; }
+
+        /* --- Scroll & Fullscreen Fixes --- */
+        .slide {
+            display: none; opacity: 0; width: 100%; height: 100%;
+            overflow-y: auto; position: relative; z-index: 10;
+        }
+        .slide.active { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; /* Horizontally centers content */
+            animation: fadeInNoir 0.8s forwards; 
+        }
+        
+        /* Advanced Centering Trick: Prevents top clipping on tall content */
+        .slide.active::before,
+        .slide.active::after {
+            content: '';
+            margin: auto;
+        }
+
+        .page-content {
+            width: 100%; max-width: 950px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 2rem 1.5rem; text-align: center;
+            flex-shrink: 0; /* Critical to prevent squishing */
+        }
+
+        @keyframes fadeInNoir {
+            from { opacity: 0; transform: scale(0.98); filter: grayscale(100%); }
+            to { opacity: 1; transform: scale(1); filter: grayscale(0%); }
+        }
+
+        body.theme-radar .slide.active { animation: radarFadeIn 0.8s forwards; }
+        @keyframes radarFadeIn {
+            from { opacity: 0; text-shadow: none; }
+            to { opacity: 1; text-shadow: 0 0 10px var(--accent); }
+        }
+
+        /* --- Interactive Elements & Follow-ups --- */
+        .interactive-card { cursor: pointer; transition: all 0.3s ease; }
+        .interactive-card:hover { border-color: var(--accent); box-shadow: inset 0 0 20px var(--accent-glow); transform: translateY(-3px); }
+        .reveal-content { max-height: 0; opacity: 0; overflow: hidden; transition: all 0.5s ease; }
+        .interactive-card.open .reveal-content { max-height: 500px; opacity: 1; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--border-color); }
+
+        /* Dossier Image Toggle */
+        .dossier-card.revealed .img-front { opacity: 0; }
+        .dossier-card.revealed .img-back { opacity: 1; }
+
+        .follow-up-box {
+            background: linear-gradient(90deg, rgba(185, 28, 28, 0.1) 0%, transparent 100%);
+            border-left: 4px solid var(--accent);
+            padding: 0.75rem 1rem; border-radius: 0 0.5rem 0.5rem 0;
+            margin-top: 1rem;
+        }
+        body.theme-radar .follow-up-box {
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.1) 0%, transparent 100%);
+        }
+
+        /* Thematic Speaking Starter */
+        .speaking-starter {
+            background: linear-gradient(90deg, rgba(185, 28, 28, 0.1) 0%, transparent 100%);
+            border-left: 4px solid var(--accent); border-radius: 0 0.5rem 0.5rem 0;
+            padding: 1.25rem 1.5rem; margin-top: 1.5rem; position: relative; overflow: hidden; text-align: left;
+        }
+        body.theme-radar .speaking-starter { background: transparent; border: 1px dashed var(--accent); border-left: 4px solid var(--accent); }
+
+        /* --- RADAR SENSE TRANSITION --- */
+        #radar-pulse-layer {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 10vw; height: 10vw; border-radius: 50%; border: 4px solid #ef4444;
+            z-index: 9999; opacity: 0; pointer-events: none; display: none;
+            box-shadow: 0 0 50px #ef4444, inset 0 0 50px #ef4444;
+        }
+        .radar-active { display: block !important; animation: radarExpand 2s ease-out forwards; }
+        @keyframes radarExpand {
+            0% { width: 0; height: 0; opacity: 1; border-width: 10px; }
+            50% { opacity: 1; }
+            100% { width: 250vw; height: 250vw; opacity: 0; border-width: 1px; }
+        }
+
+        /* Praise Pop-up Animation */
+        @keyframes popUpPraise {
+            0% { transform: translate(-50%, -50%) scale(0.2) rotate(-5deg); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.1) rotate(2deg); opacity: 1; filter: drop-shadow(0 0 20px var(--accent)); }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; filter: drop-shadow(0 0 10px var(--accent)); }
+        }
+        .praise-anim { animation: popUpPraise 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+    </style>
+</head>
+<body class="selection:bg-[var(--accent)] selection:text-[var(--btn-text)]">
+
+    <!-- AMBIENT RAIN -->
+    <div class="rain-layer"></div>
+
+    <!-- RADAR PULSE TRANSITION DIV -->
+    <div id="radar-pulse-layer"></div>
+
+    <!-- GIANT PRAISE POPUP -->
+    <div id="praise-popup" class="fixed top-1/2 left-1/2 hidden text-accent font-black text-4xl md:text-6xl text-center z-[10000] drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)] uppercase tracking-tighter w-full pointer-events-none transform -translate-x-1/2 -translate-y-1/2 font-noir">
+        <span id="praise-text" class="bg-black/90 px-6 py-3 border-2 border-accent rounded-lg inline-block shadow-2xl"></span>
+    </div>
+
+    <!-- TOP BAR -->
+    <header class="fixed top-0 left-0 w-full h-16 dd-panel rounded-none border-t-0 border-l-0 border-r-0 border-b z-40 flex items-center justify-between px-4 md:px-6 transition-colors duration-1000">
+        <div class="flex items-center gap-2 md:gap-4">
+            <span class="text-2xl drop-shadow-md opacity-80">⚖️</span>
+            <h1 class="font-noir font-black tracking-widest text-lg text-[var(--text-main)] uppercase hidden md:block">Teacher's Guide</h1>
+            <span class="border border-accent text-accent font-bold text-[10px] md:text-xs px-2 md:px-3 py-1 rounded tracking-widest md:ml-2 uppercase">LEVEL: B1/B2</span>
+        </div>
+        <div class="flex items-center gap-3 md:gap-4">
+            <!-- Praise System -->
+            <div class="flex items-center gap-2 bg-[var(--text-main)]/5 border border-[var(--border-color)] rounded px-2 py-1 shadow-inner mr-1 md:mr-2">
+                <span class="hidden lg:inline text-[10px] opacity-50 font-bold mr-1 uppercase tracking-widest">Praise:</span>
+                <button onclick="triggerPraise('JUSTICE SERVED! ⚖️')" class="text-lg hover:scale-125 transition-transform drop-shadow-md" title="Justice Served!">⚖️</button>
+                <button onclick="triggerPraise('SHARP SENSES! 🦇')" class="text-lg hover:scale-125 transition-transform drop-shadow-md" title="Sharp Senses!">🦇</button>
+                <button onclick="triggerPraise('GUILT FREE! 🕊️')" class="text-lg hover:scale-125 transition-transform drop-shadow-md" title="Guilt Free!">🕊️</button>
+            </div>
+
+            <button onclick="toggleFullscreen()" class="font-base text-[10px] md:text-xs font-bold dd-btn-outline px-3 py-1.5 uppercase tracking-widest rounded hidden sm:block">
+                FULLSCREEN
+            </button>
+            <button onclick="toggleNotepad()" class="font-base text-[10px] md:text-xs font-bold dd-btn px-4 py-1.5 uppercase tracking-widest shadow-md">
+                Notes
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN APP WRAPPER -->
+    <main class="pt-16 pb-16 w-full flex-1 relative flex flex-col z-10 overflow-hidden">
+        
+        <!-- ========================================== -->
+        <!-- ACT I: THE CONFESSIONAL (Pages 1-5)        -->
+        <!-- ========================================== -->
+
+        <!-- PAGE 1: COVER -->
+        <section class="slide active">
+            <div class="page-content">
+                <!-- Cover Image resized to prevent clipping on small screens -->
+                <div class="w-full max-w-[160px] md:max-w-[200px] dd-panel p-2 mb-4 shadow-2xl relative border border-[var(--border-color)] mx-auto">
+                    <img src="https://upload.wikimedia.org/wikipedia/pt/thumb/c/c9/Demolidor_-_Primeira_Temporada.jpg/250px-Demolidor_-_Primeira_Temporada.jpg" alt="Daredevil Cover" class="w-full h-auto object-cover grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent pointer-events-none"></div>
+                </div>
+                <span class="text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase text-muted mb-3 border border-[var(--border-color)] px-3 py-1 rounded bg-[var(--panel-bg)]">WOLFLIX Masterclass</span>
+                <h1 class="text-4xl md:text-6xl font-noir font-black mb-1 text-white drop-shadow-lg uppercase tracking-widest">Daredevil</h1>
+                <h2 class="text-base md:text-xl font-bold font-noir text-accent mb-6 uppercase tracking-widest">Blind Justice</h2>
+                
+                <div class="dd-panel p-4 md:p-6 mb-6 max-w-2xl border-l-4 border-l-accent text-left mx-auto">
+                    <p class="text-sm md:text-base font-light italic opacity-90 text-gray-300">
+                        "I'm not seeking penance for what I've done, Father. I'm asking forgiveness for what I'm about to do."
+                    </p>
+                </div>
+                
+                <button onclick="nextSlide()" class="dd-btn px-6 py-2 md:px-8 md:py-3 text-base md:text-lg flex items-center gap-2 mx-auto">
+                    Enter Hell's Kitchen
+                </button>
+            </div>
+        </section>
+
+        <!-- PAGE 2: WELCOME DIRECTIVE -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs text-accent">Directive 01</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-6 font-black text-white">Welcome, Guide</h1>
+                
+                <div class="dd-panel p-6 md:p-8 max-w-3xl w-full text-lg leading-relaxed text-gray-300 text-left">
+                    <p class="mb-4 font-bold text-xl border-b border-[var(--border-color)] pb-3 text-white">This class is dark, mature, and moral.</p>
+                    <p class="mb-4 opacity-90">Your Intermediate to Upper-Intermediate (B1/B2) student will explore the fine line between a lawyer who defends the law by day, and a vigilante who breaks it by night.</p>
+                    <div class="bg-black/50 p-4 rounded border border-[var(--border-color)] mt-4">
+                        <h3 class="font-noir uppercase text-base mb-2 accent-text tracking-widest font-black">Grammar Targets:</h3>
+                        <ul class="list-none pl-2 font-base text-base space-y-2 opacity-90">
+                            <li class="flex items-center gap-2"><span class="text-xl text-accent">👁️</span> <strong>Sense Verbs:</strong> Describing the world without sight (Look, Sound, Smell, Feel + like).</li>
+                            <li class="flex items-center gap-2"><span class="text-xl text-accent">📰</span> <strong>Passive Voice:</strong> Crime reporting and hiding the subject (He was murdered).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 3: WARM UP 1 (JUSTICE VS REVENGE) -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs text-accent">Warm-Up Phase</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-8 font-black text-white">The Confessional</h1>
+                
+                <div class="dd-panel p-6 md:p-8 max-w-3xl w-full text-center">
+                    <span class="text-6xl mb-4 block drop-shadow-md opacity-70">⚖️</span>
+                    <p class="text-xl md:text-2xl font-bold mb-6 leading-relaxed text-white">
+                        "Is there a difference between Justice and Revenge? Can a good person do bad things for the right reasons?"
+                    </p>
+                    
+                    <div class="speaking-starter mx-auto max-w-xl">
+                        <p class="font-bold text-accent font-noir text-lg mb-1 tracking-widest">🗣️ Confessional Prompt:</p>
+                        <p class="italic text-lg font-medium text-gray-300">"I believe the main difference between justice and revenge is that..."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 4: WARM UP 2 (THE SENSES) -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs text-accent">Warm-Up Phase</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-8 font-black text-white">A World in Darkness</h1>
+                
+                <div class="dd-panel p-6 md:p-8 max-w-3xl w-full text-center border-t-2 border-accent">
+                    <span class="text-6xl mb-4 block drop-shadow-md opacity-70">🦯</span>
+                    <p class="text-xl md:text-2xl font-bold mb-6 leading-relaxed text-white">
+                        "If you lost your sight today, which of your other four senses (Hearing, Touch, Smell, Taste) would you rely on the most?"
+                    </p>
+                    
+                    <div class="speaking-starter mx-auto max-w-xl">
+                        <p class="font-bold text-accent font-noir text-lg mb-1 tracking-widest">🗣️ Confessional Prompt:</p>
+                        <p class="italic text-lg font-medium text-gray-300">"I think I would rely mostly on my sense of [ hearing / touch ] because..."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 5: CHARACTER DOSSIER -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs text-accent">Classified Target</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-8 font-black text-white">The Devil of Hell's Kitchen</h1>
+                
+                <div class="dd-panel p-6 md:p-8 w-full max-w-4xl flex flex-col md:flex-row gap-8 items-center border-l-4 border-accent">
+                    <div class="w-40 h-56 md:w-56 md:h-72 border border-[var(--border-color)] bg-black shrink-0 relative overflow-hidden cursor-pointer dossier-card" onclick="this.classList.toggle('revealed')">
+                        <img src="https://upload.wikimedia.org/wikipedia/pt/thumb/c/c9/Demolidor_-_Primeira_Temporada.jpg/250px-Demolidor_-_Primeira_Temporada.jpg" alt="Matt Murdock" class="img-front absolute inset-0 w-full h-full object-cover opacity-80 transition-opacity duration-700">
+                        <img src="https://m.media-amazon.com/images/M/MV5BODcwOTg2MDE3NF5BMl5BanBnXkFtZTgwNTUyNTY1NjM@._V1_.jpg" alt="Daredevil Mask" class="img-back absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700 grayscale">
+                        <div class="absolute bottom-2 left-0 w-full text-center text-xs font-mono bg-black/80 text-white uppercase tracking-widest p-1">Click to reveal</div>
+                    </div>
+                    <div class="text-left">
+                        <h2 class="text-3xl font-black font-noir mb-2 text-white">Matt Murdock</h2>
+                        <div class="flex gap-4 mb-4 border-b border-[var(--border-color)] pb-4">
+                            <span class="uppercase tracking-widest font-bold text-xs text-gray-400">Day: Blind Lawyer</span>
+                            <span class="uppercase tracking-widest font-bold text-xs text-accent">Night: Masked Vigilante</span>
+                        </div>
+                        <p class="text-base leading-relaxed mb-4 text-gray-300">
+                            Blinded as a boy by a chemical spill, Matt's remaining senses were enhanced to superhuman levels. He uses this "radar sense" to fight crime.
+                        </p>
+                        <p class="text-base italic text-gray-400 border-l-2 border-gray-600 pl-3">
+                            Motivation: He believes the legal system is broken, and uses violence to clean up his corrupt city. But his Catholic guilt haunts him.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- ACT II: THE LAWYER'S BRIEFCASE (Pages 6-8) -->
+        <!-- ========================================== -->
+
+        <!-- PAGE 6: LEXICON 1 (COURTROOM) -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs text-white">The Lawyer's Briefcase</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-6 font-black text-white drop-shadow-md">The Courtroom</h1>
+                <p class="text-center text-base mb-6 font-bold text-gray-400">Click the manila folders to learn the legal vocabulary.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl w-full">
+                    <div class="dd-panel p-6 text-center interactive-card bg-[#eaddcf] text-black border-2 border-[#8b5a2b]" onclick="this.classList.toggle('open')">
+                        <span class="text-4xl mb-2 block">💼</span>
+                        <h3 class="font-noir font-black text-xl uppercase tracking-widest mb-1 text-black">Lawyer / Attorney</h3>
+                        <div class="reveal-content text-left border-t-2 border-black/20">
+                            <p class="text-sm mb-2 font-bold opacity-90 mt-2">A person who practices or studies law.</p>
+                            <p class="text-xs italic opacity-80 mb-2">"Matt Murdock is a very good lawyer."</p>
+                            <div class="follow-up-box !border-l-black bg-black/5 !mt-2 !py-2">
+                                <p class="font-bold text-black text-[10px] uppercase tracking-widest mb-1">🗣️ Discussion Prompt:</p>
+                                <p class="font-medium text-xs">Would you ever want to be a lawyer? Why or why not?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dd-panel p-6 text-center interactive-card bg-[#eaddcf] text-black border-2 border-[#8b5a2b]" onclick="this.classList.toggle('open')">
+                        <span class="text-4xl mb-2 block">⚖️</span>
+                        <h3 class="font-noir font-black text-xl uppercase tracking-widest mb-1 text-black">Justice</h3>
+                        <div class="reveal-content text-left border-t-2 border-black/20">
+                            <p class="text-sm mb-2 font-bold opacity-90 mt-2">Fair treatment under the law.</p>
+                            <p class="text-xs italic opacity-80 mb-2">"We are fighting for justice in this city."</p>
+                            <div class="follow-up-box !border-l-black bg-black/5 !mt-2 !py-2">
+                                <p class="font-bold text-black text-[10px] uppercase tracking-widest mb-1">🗣️ Discussion Prompt:</p>
+                                <p class="font-medium text-xs">Do you think true justice is possible in a corrupt system?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dd-panel p-6 text-center interactive-card bg-[#eaddcf] text-black border-2 border-[#8b5a2b]" onclick="this.classList.toggle('open')">
+                        <span class="text-4xl mb-2 block">📄</span>
+                        <h3 class="font-noir font-black text-xl uppercase tracking-widest mb-1 text-black">Evidence</h3>
+                        <div class="reveal-content text-left border-t-2 border-black/20">
+                            <p class="text-sm mb-2 font-bold opacity-90 mt-2">Facts or information proving a belief.</p>
+                            <p class="text-xs italic opacity-80 mb-2">"The police found evidence at the crime scene."</p>
+                            <div class="follow-up-box !border-l-black bg-black/5 !mt-2 !py-2">
+                                <p class="font-bold text-black text-[10px] uppercase tracking-widest mb-1">🗣️ Discussion Prompt:</p>
+                                <p class="font-medium text-xs">What kind of evidence do you think is impossible to fake?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 7: LEXICON 2 (STREETS) -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs text-accent">The Lawyer's Briefcase</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-6 font-black text-white drop-shadow-md">The Streets</h1>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl w-full">
+                    <div class="dd-panel p-6 text-center interactive-card border-t-4 border-accent" onclick="this.classList.toggle('open')">
+                        <span class="text-4xl mb-2 block">🥷</span>
+                        <h3 class="font-noir font-black text-xl uppercase tracking-widest mb-1 text-white">Vigilante</h3>
+                        <div class="reveal-content text-left">
+                            <p class="text-sm mb-2 font-bold opacity-90 mt-2 text-gray-300">A citizen who takes the law into their own hands.</p>
+                            <p class="text-xs italic opacity-80 text-accent mb-2">"Daredevil is a masked vigilante."</p>
+                            <div class="follow-up-box mt-2 py-2">
+                                <p class="font-bold text-accent text-[10px] uppercase tracking-widest mb-1">🗣️ Prompt:</p>
+                                <p class="font-medium text-xs text-white">Are vigilantes ever justified, or are they just criminals?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dd-panel p-6 text-center interactive-card border-t-4 border-gray-500" onclick="this.classList.toggle('open')">
+                        <span class="text-4xl mb-2 block">💰</span>
+                        <h3 class="font-noir font-black text-xl uppercase tracking-widest mb-1 text-white">Corrupt</h3>
+                        <div class="reveal-content text-left">
+                            <p class="text-sm mb-2 font-bold opacity-90 mt-2 text-gray-300">Willing to act dishonestly in return for money.</p>
+                            <p class="text-xs italic opacity-80 text-accent mb-2">"The police in this city are corrupt."</p>
+                            <div class="follow-up-box mt-2 py-2">
+                                <p class="font-bold text-accent text-[10px] uppercase tracking-widest mb-1">🗣️ Prompt:</p>
+                                <p class="font-medium text-xs text-white">Why do you think people in power become corrupt?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dd-panel p-6 text-center interactive-card border-t-4 border-gray-700 bg-black" onclick="this.classList.toggle('open')">
+                        <span class="text-4xl mb-2 block opacity-50">🗑️</span>
+                        <h3 class="font-noir font-black text-xl uppercase tracking-widest mb-1 text-white">Alleyway</h3>
+                        <div class="reveal-content text-left">
+                            <p class="text-sm mb-2 font-bold opacity-90 mt-2 text-gray-300">A narrow dark street behind buildings.</p>
+                            <p class="text-xs italic opacity-80 text-accent mb-2">"He stopped the crime in a dark alleyway."</p>
+                            <div class="follow-up-box mt-2 py-2">
+                                <p class="font-bold text-accent text-[10px] uppercase tracking-widest mb-1">🗣️ Prompt:</p>
+                                <p class="font-medium text-xs text-white">Have you ever felt scared walking down a dark street?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 8: LEXICON 3 (CHURCH) -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs text-gray-400">The Lawyer's Briefcase</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-6 font-black text-white drop-shadow-md">The Church</h1>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl w-full">
+                    <div class="dd-panel p-6 text-center interactive-card border border-gray-600" onclick="this.classList.toggle('open')">
+                        <span class="text-4xl mb-2 block">⛪</span>
+                        <h3 class="font-noir font-black text-xl uppercase tracking-widest mb-1 text-white">Confession</h3>
+                        <div class="reveal-content text-left">
+                            <p class="text-sm mb-2 font-bold opacity-90 mt-2 text-gray-300">Admitting your sins to a priest.</p>
+                            <p class="text-xs italic opacity-80 text-gray-500 mb-2">"Matt goes to confession every week."</p>
+                            <div class="follow-up-box mt-2 py-2">
+                                <p class="font-bold text-accent text-[10px] uppercase tracking-widest mb-1">🗣️ Prompt:</p>
+                                <p class="font-medium text-xs text-white">Is it hard for people to admit when they are wrong?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dd-panel p-6 text-center interactive-card border border-gray-600" onclick="this.classList.toggle('open')">
+                        <span class="text-4xl mb-2 block">😈</span>
+                        <h3 class="font-noir font-black text-xl uppercase tracking-widest mb-1 text-white">Sinner</h3>
+                        <div class="reveal-content text-left">
+                            <p class="text-sm mb-2 font-bold opacity-90 mt-2 text-gray-300">A person who breaks moral or religious laws.</p>
+                            <p class="text-xs italic opacity-80 text-gray-500 mb-2">"We are all sinners in this city."</p>
+                            <div class="follow-up-box mt-2 py-2">
+                                <p class="font-bold text-accent text-[10px] uppercase tracking-widest mb-1">🗣️ Prompt:</p>
+                                <p class="font-medium text-xs text-white">Do you believe people who do bad things can ever change?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dd-panel p-6 text-center interactive-card border border-gray-600" onclick="this.classList.toggle('open')">
+                        <span class="text-4xl mb-2 block">🕊️</span>
+                        <h3 class="font-noir font-black text-xl uppercase tracking-widest mb-1 text-white">Forgiveness</h3>
+                        <div class="reveal-content text-left">
+                            <p class="text-sm mb-2 font-bold opacity-90 mt-2 text-gray-300">Stopping feeling angry toward someone for a mistake.</p>
+                            <p class="text-xs italic opacity-80 text-gray-500 mb-2">"I am asking for forgiveness."</p>
+                            <div class="follow-up-box mt-2 py-2">
+                                <p class="font-bold text-accent text-[10px] uppercase tracking-widest mb-1">🗣️ Prompt:</p>
+                                <p class="font-medium text-xs text-white">Is there anything you could never forgive someone for doing?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- ACT III: THE WORLD ON FIRE (Grammar 1)     -->
+        <!-- ========================================== -->
+
+        <!-- PAGE 9: GRAMMAR 1 -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs accent-text">Grammar Focus</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-6 font-black text-white">Sense Verbs</h1>
+                
+                <div class="dd-panel p-6 md:p-8 max-w-3xl w-full text-center">
+                    <p class="text-lg md:text-xl font-bold mb-6 text-gray-300">Matt Murdock is blind. We must describe the world using other senses.</p>
+                    
+                    <div class="bg-black/50 p-6 border border-[var(--border-color)] inline-block mt-2 text-left rounded-lg w-full">
+                        <p class="text-base md:text-lg font-bold mb-4 text-white">1. Verb + Adjective</p>
+                        <p class="text-base italic text-gray-400 pl-4 border-l-2 border-accent mb-6">"He <span class="text-accent font-bold">sounds</span> angry." / "The fabric <span class="text-accent font-bold">feels</span> soft."</p>
+                        
+                        <p class="text-base md:text-lg font-bold mb-4 text-white">2. Verb + LIKE + Noun</p>
+                        <p class="text-base italic text-gray-400 pl-4 border-l-2 border-accent">"It <span class="text-accent font-bold">smells like</span> rain." / "It <span class="text-accent font-bold">tastes like</span> blood."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 10: GRAMMAR DRILL (BLINDFOLDED) -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs accent-text">Interactive Challenge</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-6 font-black text-white">Blindfolded</h1>
+                <p class="text-center text-base mb-6 text-gray-400 font-bold max-w-2xl">Complete the sentences using non-visual clues. Click to reveal.</p>
+
+                <div class="space-y-4 max-w-3xl w-full text-lg font-bold">
+                    <div class="dd-panel p-5 rounded-lg cursor-pointer interactive-card text-left" onclick="this.classList.toggle('open')">
+                        <p>1. I hear a siren. It <span class="border-b-2 border-gray-500 px-4 mx-1 text-transparent">___</span> the police.</p>
+                        <div class="reveal-content mt-3 text-left border-t border-gray-600 pt-3">
+                            <p class="text-accent mb-2">> sounds like</p>
+                            <p class="text-xs text-gray-500 uppercase">Reason:</p>
+                            <p class="text-sm text-gray-300 font-normal mb-2">Verb + LIKE + Noun (the police).</p>
+                            <div class="follow-up-box mt-2 py-2">
+                                <p class="font-bold text-accent text-[10px] uppercase tracking-widest mb-1">🗣️ Prompt:</p>
+                                <p class="font-medium text-xs text-white">What does your favorite song sound like to you?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dd-panel p-5 rounded-lg cursor-pointer interactive-card text-left" onclick="this.classList.toggle('open')">
+                        <p>2. The fabric is soft. It <span class="border-b-2 border-gray-500 px-4 mx-1 text-transparent">___</span> expensive.</p>
+                        <div class="reveal-content mt-3 text-left border-t border-gray-600 pt-3">
+                            <p class="text-accent mb-2">> feels</p>
+                            <p class="text-xs text-gray-500 uppercase">Reason:</p>
+                            <p class="text-sm text-gray-300 font-normal mb-2">Verb + Adjective (expensive).</p>
+                            <div class="follow-up-box mt-2 py-2">
+                                <p class="font-bold text-accent text-[10px] uppercase tracking-widest mb-1">🗣️ Prompt:</p>
+                                <p class="font-medium text-xs text-white">Have you ever bought something just because it felt good?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dd-panel p-5 rounded-lg cursor-pointer interactive-card text-left" onclick="this.classList.toggle('open')">
+                        <p>3. Is something burning? It <span class="border-b-2 border-gray-500 px-4 mx-1 text-transparent">___</span> smoke.</p>
+                        <div class="reveal-content mt-3 text-left border-t border-gray-600 pt-3">
+                            <p class="text-accent mb-2">> smells like</p>
+                            <p class="text-xs text-gray-500 uppercase">Reason:</p>
+                            <p class="text-sm text-gray-300 font-normal mb-2">Verb + LIKE + Noun (smoke).</p>
+                            <div class="follow-up-box mt-2 py-2">
+                                <p class="font-bold text-accent text-[10px] uppercase tracking-widest mb-1">🗣️ Prompt:</p>
+                                <p class="font-medium text-xs text-white">What is a smell that brings back a strong memory for you?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 11: APPLIED GRAMMAR (YOUR SENSES) -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs accent-text">Applied Grammar</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-8 font-black text-white">Your Senses</h1>
+                
+                <div class="dd-panel p-8 max-w-3xl w-full text-center border-t-2 border-accent">
+                    <p class="text-xl font-bold mb-6 text-gray-200">
+                        Ask the student to close their eyes for 5 seconds in their room.
+                    </p>
+                    <p class="text-lg italic text-gray-400 mb-8">
+                        "What do you hear? What do you feel?"
+                    </p>
+                    
+                    <div class="speaking-starter mx-auto max-w-xl text-left border border-white/5 bg-black/40">
+                        <p class="font-bold text-accent font-noir text-lg mb-1 tracking-widest">🗣️ Radar Prompt:</p>
+                        <p class="italic text-base font-medium text-white">"I hear cars outside. It sounds like traffic. The air in my room feels cold."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- ACT IV: RADAR SENSE (The Transition)       -->
+        <!-- ========================================== -->
+
+        <!-- PAGE 12: PRE-TRANSITION BRIEFING -->
+        <section class="slide text-center">
+            <div class="page-content">
+                <div class="max-w-3xl mx-auto flex flex-col items-center justify-center w-full">
+                    <span class="text-6xl md:text-7xl mb-6 block drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">🦯</span>
+                    <h2 class="font-base font-bold tracking-widest mb-3 uppercase text-xs text-gray-400">Preparation</h2>
+                    <h1 class="text-4xl md:text-5xl font-noir uppercase mb-6 font-black text-white">A World on Fire</h1>
+                    <div class="dd-panel p-6 md:p-8 max-w-2xl text-lg leading-relaxed font-bold border-l-4 border-gray-500 shadow-xl w-full text-left text-gray-300">
+                        <p class="mb-4">Matt Murdock lost his sight as a boy. But his other senses became superhuman.</p>
+                        <p>To watch this trailer, we must see the world exactly like he does.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 13: THE RADAR SENSE (WOW MECHANIC) -->
+        <section class="slide">
+            <div class="page-content">
+                <div class="w-full max-w-3xl mx-auto flex flex-col items-center justify-center text-center">
+                    <h2 class="font-base font-bold tracking-widest mb-3 uppercase text-xs accent-text animate-pulse">Sensory Shift Required</h2>
+                    <h1 class="text-4xl md:text-5xl font-noir uppercase mb-8 font-black text-white">Echolocation</h1>
+                    
+                    <p class="text-lg font-bold mb-10 opacity-80 max-w-xl text-gray-400">
+                        "Focus on the sounds. The heartbeats."
+                    </p>
+                    
+                    <button onclick="triggerRadarEvent()" class="dd-btn px-10 py-5 text-xl md:text-2xl bg-black text-white shadow-[0_0_20px_rgba(255,255,255,0.2)] border border-gray-600 w-full max-w-sm" id="radar-btn">
+                        Turn Off The Lights
+                    </button>
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mt-4">Student: Click to activate Radar Sense.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- THEME SHIFTS TO RADAR (RED/BLACK) HERE     -->
+        <!-- ========================================== -->
+
+        <!-- PAGE 14: SCREENING PREP (RADAR MODE) -->
+        <section class="slide text-center">
+            <div class="page-content">
+                <div class="max-w-3xl mx-auto flex flex-col items-center w-full">
+                    <span class="text-6xl md:text-7xl mb-6 block drop-shadow-[0_0_15px_var(--accent)]">🎧</span>
+                    <h2 class="font-base font-bold tracking-widest mb-3 uppercase text-xs text-accent">Audio Evidence</h2>
+                    <h1 class="text-4xl md:text-6xl font-noir uppercase mb-6 font-black text-white">Radar Mode</h1>
+                    <div class="dd-panel p-6 md:p-8 max-w-2xl border border-accent text-lg leading-relaxed text-left w-full shadow-[0_0_20px_rgba(239,68,68,0.1)]">
+                        <p class="mb-3 font-bold text-white">> Watch the official Season 1 trailer.</p>
+                        <p class="mb-3">> Listen to the voiceover. It is a confession.</p>
+                        <p>> Watch how the fighting is brutal, messy, and not glamorous at all.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 15: THE SCREENING ROOM -->
+        <section class="slide h-full">
+            <div class="page-content w-full h-full">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs text-accent text-center">Surveillance Feed</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-6 text-center font-black text-white">Daredevil: S1</h1>
+                
+                <div class="w-full max-w-4xl mx-auto rounded overflow-hidden border border-accent bg-black shadow-[0_0_30px_rgba(239,68,68,0.2)] relative aspect-video shrink-0">
+                    <iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/jAy6NJ_D5vU?rel=0" frameborder="0" allowfullscreen></iframe>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 16: COMPREHENSION CHECK -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs text-accent text-center">Data Analysis</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-6 text-center font-black text-white">Comprehension</h1>
+                
+                <div class="space-y-4 max-w-3xl mx-auto w-full">
+                    <div class="dd-panel p-6 border border-[var(--border-color)] interactive-card text-left" onclick="this.classList.toggle('open')">
+                        <p class="font-bold text-lg md:text-xl text-white">> Q: Who is Matt talking to at the beginning?</p>
+                        <div class="reveal-content text-accent font-bold text-base md:text-lg mt-3">
+                            [ RESPONSE: A priest in a confessional. ]
+                            <div class="follow-up-box mt-3 text-left">
+                                <p class="font-bold text-accent text-[10px] uppercase tracking-widest mb-1">🗣️ Discussion Prompt:</p>
+                                <p class="font-medium text-sm text-[var(--text-main)]">Why do you think he goes to a priest before he commits a crime?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dd-panel p-6 border border-[var(--border-color)] interactive-card text-left" onclick="this.classList.toggle('open')">
+                        <p class="font-bold text-lg md:text-xl text-white">> Q: How does he dress when fighting?</p>
+                        <div class="reveal-content text-accent font-bold text-base md:text-lg mt-3">
+                            [ RESPONSE: In simple black clothes and a black mask, not a fancy superhero suit. ]
+                            <div class="follow-up-box mt-3 text-left">
+                                <p class="font-bold text-accent text-[10px] uppercase tracking-widest mb-1">🗣️ Discussion Prompt:</p>
+                                <p class="font-medium text-sm text-[var(--text-main)]">Does wearing simple clothes make the hero feel more real to you?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 17: EMOTIONAL RESPONSE (TONE) -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs text-accent text-center">Cinematic Magic</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-8 text-center font-black text-white">Tone Discussion</h1>
+                
+                <div class="dd-panel p-6 md:p-8 max-w-3xl mx-auto w-full text-center border-t-2 border-accent">
+                    <p class="text-lg font-bold mb-6 leading-relaxed text-gray-300">
+                        "Unlike other colorful superhero movies, this series is extremely dark, grounded, and violent."
+                    </p>
+                    
+                    <div class="speaking-starter mx-auto max-w-xl text-left">
+                        <p class="font-bold text-accent font-noir text-lg mb-1 tracking-widest">🗣️ Prompt:</p>
+                        <p class="italic text-base font-medium text-white">"Do you prefer realistic, dark heroes or colorful, magical superheroes? Why?"</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- ACT V: THE CRIME REPORT (Passive Voice)    -->
+        <!-- ========================================== -->
+
+        <!-- PAGE 18: GRAMMAR 2 - PASSIVE VOICE -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs text-accent text-center">Grammar Module</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-8 text-center font-black text-white">The Passive Voice</h1>
+                
+                <div class="dd-panel p-6 md:p-8 max-w-3xl mx-auto w-full text-left">
+                    <p class="text-base font-bold mb-6 text-gray-300">Why do we use the Passive Voice in Crime Reporting? To focus on the <strong class="text-white">victim</strong> or the <strong class="text-white">crime</strong>, not the criminal.</p>
+                    
+                    <div class="bg-black/50 p-6 rounded border border-gray-700 mt-2 space-y-6">
+                        <div>
+                            <p class="text-xs uppercase tracking-widest text-gray-500 font-bold mb-1">Active (Focus on who did it)</p>
+                            <p class="text-lg text-gray-400">"The Kingpin controls the city."</p>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-widest text-accent font-bold mb-1">Passive (Focus on the victim/action)</p>
+                            <p class="text-xl text-white font-bold">"The city <span class="text-accent underline">is controlled</span> by the Kingpin."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 19: PASSIVE VOICE BREAKDOWN -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs text-accent text-center">Grammar Module</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-6 text-center font-black text-white">Structure</h1>
+
+                <div class="dd-panel p-6 md:p-8 max-w-3xl mx-auto w-full text-center">
+                    <p class="text-lg font-bold mb-4 border-b border-gray-700 pb-4 text-white">Object + Verb To Be + Past Participle</p>
+                    
+                    <div class="space-y-4 text-left mt-6">
+                        <p class="text-lg text-gray-300">"He <span class="text-accent font-bold">was murdered</span>."</p>
+                        <p class="text-lg text-gray-300">"The money <span class="text-accent font-bold">was stolen</span>."</p>
+                        <p class="text-lg text-gray-300">"The suspect <span class="text-accent font-bold">has been arrested</span>."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 20: THE POLICE REPORT (MINIGAME) -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs text-accent text-center">Interactive Challenge</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-6 text-center font-black text-white">The Police Report</h1>
+                <p class="text-center text-sm mb-6 text-gray-400 max-w-2xl mx-auto">Act as a reporter. Rewrite the active sentences into the Passive Voice to sound professional.</p>
+
+                <div class="space-y-4 max-w-3xl mx-auto w-full text-base font-bold">
+                    <div class="dd-panel p-5 border border-[var(--border-color)] interactive-card text-left" onclick="this.querySelector('.ans').classList.toggle('hidden'); this.classList.toggle('open')">
+                        <p class="text-gray-400 mb-2 font-normal text-sm">Active: Someone broke the window.</p>
+                        <p class="text-white">Passive: The window <span class="border-b border-gray-600 px-4 text-transparent">___</span>.</p>
+                        <div class="reveal-content mt-3 border-t border-gray-600 pt-3">
+                            <div class="ans hidden text-accent">> was broken</div>
+                            <div class="follow-up-box mt-3 text-left">
+                                <p class="font-bold text-accent text-[10px] uppercase tracking-widest mb-1">🗣️ Discussion Prompt:</p>
+                                <p class="font-medium text-sm text-[var(--text-main)]">Have you ever broken something and tried to hide it?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dd-panel p-5 border border-[var(--border-color)] interactive-card text-left" onclick="this.querySelector('.ans').classList.toggle('hidden'); this.classList.toggle('open')">
+                        <p class="text-gray-400 mb-2 font-normal text-sm">Active: The police found the weapon.</p>
+                        <p class="text-white">Passive: The weapon <span class="border-b border-gray-600 px-4 text-transparent">___</span>.</p>
+                        <div class="reveal-content mt-3 border-t border-gray-600 pt-3">
+                            <div class="ans hidden text-accent">> was found</div>
+                            <div class="follow-up-box mt-3 text-left">
+                                <p class="font-bold text-accent text-[10px] uppercase tracking-widest mb-1">🗣️ Discussion Prompt:</p>
+                                <p class="font-medium text-sm text-[var(--text-main)]">If you found a dangerous weapon on the street, what would you do first?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dd-panel p-5 border border-[var(--border-color)] interactive-card text-left" onclick="this.querySelector('.ans').classList.toggle('hidden'); this.classList.toggle('open')">
+                        <p class="text-gray-400 mb-2 font-normal text-sm">Active: A vigilante is protecting the streets.</p>
+                        <p class="text-white">Passive: The streets <span class="border-b border-gray-600 px-4 text-transparent">___</span>.</p>
+                        <div class="reveal-content mt-3 border-t border-gray-600 pt-3">
+                            <div class="ans hidden text-accent">> are being protected</div>
+                            <div class="follow-up-box mt-3 text-left">
+                                <p class="font-bold text-accent text-[10px] uppercase tracking-widest mb-1">🗣️ Discussion Prompt:</p>
+                                <p class="font-medium text-sm text-[var(--text-main)]">Would you feel safer if your city was protected by police or by a vigilante?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 21: PASSIVE SPEAKING SCENARIOS -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs text-accent text-center">Applied Grammar</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-8 text-center font-black text-white">Breaking News</h1>
+                
+                <div class="dd-panel p-6 md:p-8 max-w-3xl mx-auto w-full text-center">
+                    <p class="text-lg font-bold mb-6 text-gray-300">
+                        Create a mini-news report using the Passive Voice based on the prompt.
+                    </p>
+                    
+                    <div class="space-y-6 text-left max-w-xl mx-auto">
+                        <div class="speaking-starter m-0 mt-3 border-l-2">
+                            <p class="font-bold text-accent font-noir text-sm mb-1 tracking-widest">🗣️ Scenario 1: A Bank Robbery</p>
+                            <p class="italic text-base font-medium text-white">"Yesterday, the Gotham Bank <span class="text-gray-500">[rob]</span> and 1 million dollars <span class="text-gray-500">[take]</span>."</p>
+                        </div>
+                        <div class="speaking-starter m-0 mt-3 border-l-2">
+                            <p class="font-bold text-accent font-noir text-sm mb-1 tracking-widest">🗣️ Scenario 2: The Vigilante</p>
+                            <p class="italic text-base font-medium text-white">"Last night, three criminals <span class="text-gray-500">[attack]</span> by a man in a black mask."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- ACT VI: THE VERDICT (Roleplay & Debate)    -->
+        <!-- ========================================== -->
+
+        <!-- PAGE 22: CASTING CALL 1 (THE CONFESSION) -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs text-accent text-center">Interactive Speaking</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-6 text-center font-black text-white">The Confession</h1>
+                
+                <div class="flex flex-col md:flex-row gap-4 w-full max-w-4xl mx-auto min-h-[35vh]">
+                    <!-- Teacher (Priest) -->
+                    <div class="flex-1 dd-panel p-6 flex flex-col justify-center text-center border-t-2 border-gray-500">
+                        <h3 class="text-xl font-black mb-1 uppercase text-gray-300 font-noir">Teacher</h3>
+                        <p class="text-xs opacity-50 tracking-widest mb-6 font-bold uppercase">Plays: The Priest</p>
+                        <p class="text-lg italic mb-4 font-normal">"Why do you feel this anger, my son?"</p>
+                        <p class="text-lg italic font-normal">"Are you seeking forgiveness for what you've done?"</p>
+                    </div>
+                    
+                    <!-- Student (Matt) -->
+                    <div class="flex-1 dd-panel p-6 flex flex-col justify-center text-center border-t-2 border-accent bg-accent/5">
+                        <h3 class="text-xl font-black mb-1 uppercase text-accent font-noir">Student</h3>
+                        <p class="text-xs opacity-50 tracking-widest mb-6 font-bold uppercase">Plays: Matt Murdock</p>
+                        <p class="text-lg italic mb-4 font-bold text-white">"The city is being poisoned by bad men."</p>
+                        <p class="text-lg italic font-bold text-white">"I'm asking forgiveness for what I'm about to do."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 23: CASTING CALL 2 (THE COURTROOM) -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs text-accent text-center">Interactive Speaking</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-6 text-center font-black text-white">The Courtroom</h1>
+                
+                <div class="flex flex-col md:flex-row gap-4 w-full max-w-4xl mx-auto min-h-[35vh]">
+                    <!-- Teacher (Witness) -->
+                    <div class="flex-1 dd-panel p-6 flex flex-col justify-center text-center border-t-2 border-gray-500">
+                        <h3 class="text-xl font-black mb-1 uppercase text-gray-300 font-noir">Teacher</h3>
+                        <p class="text-xs opacity-50 tracking-widest mb-6 font-bold uppercase">Plays: The Corrupt Witness</p>
+                        <p class="text-lg italic mb-4 font-normal">"I don't know who murdered him."</p>
+                        <p class="text-lg italic font-normal">"I didn't see anything. It was too dark."</p>
+                    </div>
+                    
+                    <!-- Student (Lawyer) -->
+                    <div class="flex-1 dd-panel p-6 flex flex-col justify-center text-center border-t-2 border-accent bg-accent/5">
+                        <h3 class="text-xl font-black mb-1 uppercase text-accent font-noir">Student</h3>
+                        <p class="text-xs opacity-50 tracking-widest mb-6 font-bold uppercase">Plays: The Lawyer</p>
+                        <p class="text-lg italic mb-4 font-bold text-white">"The evidence was found in your car!"</p>
+                        <p class="text-lg italic font-bold text-white">"You must be lying to protect someone."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 24: PHILOSOPHICAL DEBATE -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs text-accent text-center">Deep Discussion</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-8 text-center font-black text-white">The Kingpin's Vision</h1>
+                
+                <div class="dd-panel p-6 md:p-8 max-w-3xl mx-auto w-full text-center">
+                    <span class="text-5xl mb-4 block">🏙️ 🔥</span>
+                    <p class="text-lg font-light mb-6 leading-relaxed text-gray-300 italic">
+                        "The villain (Fisk) and the hero (Matt) both want to 'save the city'. Fisk wants to destroy the corrupt parts to rebuild it. Matt wants to save the people using fear."
+                    </p>
+                    
+                    <div class="speaking-starter mx-auto max-w-xl text-left border border-white/5">
+                        <p class="font-bold text-accent font-noir text-sm mb-1 tracking-widest">🗣️ Prompt:</p>
+                        <p class="italic text-base font-medium text-white">"Do the ends justify the means? Can you do something evil to achieve a good result?"</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 25: HOMEWORK DIRECTIVE -->
+        <section class="slide">
+            <div class="page-content">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs text-accent text-center">Post-Class Assignment</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-8 text-center font-black text-white">The Legal Brief</h1>
+                
+                <div class="dd-panel p-8 max-w-2xl mx-auto w-full relative border border-gray-600 bg-black/60">
+                    <h3 class="text-xl font-black mb-4 uppercase border-b border-gray-700 pb-2 text-white font-mono">Assignment:</h3>
+                    <p class="text-base leading-relaxed font-normal mb-4 text-gray-300">
+                        "Write a short 150-word police report about a vigilante stopping a crime in your city."
+                    </p>
+                    <ul class="list-disc pl-6 text-sm font-medium space-y-2 mb-6 text-gray-400 text-left font-mono">
+                        <li>Use the <strong class="text-white">Passive Voice</strong> at least 3 times.</li>
+                        <li>Use at least 2 <strong class="text-white">Sense Verbs</strong> (Look, Sound, Feel).</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 26: APPRAISAL & END -->
+        <section class="slide">
+            <div class="page-content items-center text-center">
+                <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-xs text-accent">Mission Accomplished</h2>
+                <h1 class="text-3xl md:text-5xl font-noir uppercase mb-6 font-black text-white">Journey's End</h1>
+                
+                <div class="space-y-3 max-w-xl w-full text-sm font-medium text-left mb-10 text-gray-400 font-mono">
+                    <label class="flex items-center gap-4 p-4 dd-panel rounded cursor-pointer border border-gray-800">
+                        <input type="checkbox" class="w-5 h-5 accent-accent">
+                        <span class="mt-1">Sense Verbs utilized correctly.</span>
+                    </label>
+                    <label class="flex items-center gap-4 p-4 dd-panel rounded cursor-pointer border border-gray-800">
+                        <input type="checkbox" class="w-5 h-5 accent-accent">
+                        <span class="mt-1">Passive Voice transformed.</span>
+                    </label>
+                    <label class="flex items-center gap-4 p-4 dd-panel rounded cursor-pointer border border-gray-800">
+                        <input type="checkbox" class="w-5 h-5 accent-accent">
+                        <span class="mt-1">Moral dilemmas debated.</span>
+                    </label>
+                </div>
+
+                <div class="border-t border-gray-800 pt-8 w-full flex flex-col items-center">
+                    <p class="mb-4 text-sm font-bold max-w-xl mx-auto text-gray-500 uppercase tracking-widest">Rate this trailer:</p>
+                    <div class="flex justify-center gap-3 md:gap-6 mb-8">
+                        <button onclick="rate(1)" class="horn-rating text-4xl md:text-5xl grayscale opacity-30 hover:scale-110 transition-transform filter drop-shadow-md">🤘</button>
+                        <button onclick="rate(2)" class="horn-rating text-4xl md:text-5xl grayscale opacity-30 hover:scale-110 transition-transform filter drop-shadow-md">🤘</button>
+                        <button onclick="rate(3)" class="horn-rating text-4xl md:text-5xl grayscale opacity-30 hover:scale-110 transition-transform filter drop-shadow-md">🤘</button>
+                        <button onclick="rate(4)" class="horn-rating text-4xl md:text-5xl grayscale opacity-30 hover:scale-110 transition-transform filter drop-shadow-md">🤘</button>
+                        <button onclick="rate(5)" class="horn-rating text-4xl md:text-5xl grayscale opacity-30 hover:scale-110 transition-transform filter drop-shadow-md">🤘</button>
+                    </div>
+                    <div id="rat-hub" class="hidden p-3 dd-panel rounded font-bold text-sm text-center uppercase tracking-widest text-accent w-max mx-auto font-mono">> RATED <span id="star-c" class="text-white mx-2 font-black text-lg"></span> HORNS.</div>
+                    
+                    <button onclick="window.location.reload();" class="mt-8 dd-btn px-6 py-2 text-sm shadow-md">
+                        Return to Office
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- BOTTOM BAR (Pagination) -->
+    <footer class="fixed bottom-0 left-0 w-full h-16 md:h-20 bg-black/40 backdrop-blur-xl border-t border-white/5 z-40 flex items-center justify-between px-6 md:px-10">
+        <div class="flex-1 flex justify-start">
+            <button onclick="prevSlide()" class="btn-outline text-xs md:text-sm px-6 py-2 rounded-full uppercase tracking-widest font-bold text-white border border-[var(--border-color)] hover:border-accent hover:text-accent" id="btn-prev">
+                << Prev
+            </button>
+        </div>
+        
+        <div class="flex-1 flex flex-col items-center justify-center">
+            <div class="font-base font-black text-xl md:text-2xl tracking-widest text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
+                PAGE <span id="page-num" class="text-bat-red">01</span> / <span id="total-pages">26</span>
+            </div>
+            <div class="font-typewriter font-bold text-[10px] tracking-widest text-gray-500 mt-1 uppercase hidden md:block">
+                POWERED BY WOLFLIX
+            </div>
+        </div>
+
+        <div class="flex-1 flex justify-end">
+            <button onclick="nextSlide()" class="btn-outline text-xs md:text-sm px-6 py-2 rounded-full uppercase tracking-widest font-bold text-white border border-[var(--border-color)] hover:border-accent hover:text-accent" id="btn-next">
+                Next >>
+            </button>
+        </div>
+    </footer>
+
+    <!-- SLIDE-OUT NOTEPAD -->
+    <aside id="notepad-panel" class="fixed top-0 right-0 w-full max-w-md h-full bg-[#050505]/95 backdrop-blur-2xl border-l border-white/10 z-50 translate-x-full flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.9)] transition-transform duration-500">
+        <div class="p-6 border-b border-white/5 bg-black/50 flex justify-between items-center">
+            <h2 class="font-typewriter font-bold text-bat-red uppercase tracking-widest text-base flex items-center gap-2">
+                GCPD Case Notes
+            </h2>
+            <button onclick="toggleNotepad()" class="text-gray-400 hover:text-white font-black text-2xl px-2 transition-colors">✕</button>
+        </div>
+        <textarea class="flex-1 w-full bg-transparent p-8 font-typewriter text-gray-300 text-xl leading-relaxed outline-none resize-none placeholder:text-gray-700" placeholder="Type your case notes here..."></textarea>
+    </aside>
+
+    <!-- SLIDE-OUT BAT-COMPUTER (Dictionary) -->
+    <aside id="bat-computer" class="fixed top-0 right-0 w-full max-w-md h-full bg-[#020617]/95 backdrop-blur-2xl border-l-2 border-bat-green z-50 translate-x-full flex flex-col shadow-[-10px_0_30px_rgba(34,197,94,0.1)] transition-transform duration-500 font-typewriter">
+        <div class="p-6 border-b border-bat-green/30 bg-black/50 flex justify-between items-center">
+            <h2 class="font-bold text-bat-green uppercase tracking-widest text-base flex items-center gap-2 animate-pulse">
+                > GCPD Database
+            </h2>
+            <button onclick="closeBatComputer()" class="text-bat-green hover:text-white font-black text-2xl px-2 transition-colors">✕</button>
+        </div>
+        <div class="flex-1 w-full p-8 overflow-y-auto" id="bat-content">
+            <!-- Content injected via JS -->
+            <p class="text-bat-green/50 text-center mt-10">Waiting for query...</p>
+        </div>
+    </aside>
+
+    <!-- JS LOGIC -->
+    <script>
+        // --- Intro/Outro Constraint: Configurado para Português, Classe em Inglês ---
+        
+        // --- 1. Pagination Logic ---
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function updatePagination() {
+            document.getElementById('page-num').innerText = (currentSlide + 1).toString().padStart(2, '0');
+            document.getElementById('total-pages').innerText = totalSlides;
+            document.getElementById('btn-prev').disabled = currentSlide === 0;
+            document.getElementById('btn-next').disabled = currentSlide === totalSlides - 1;
+            
+            // Hard fallback: Ativa Radar Mode a partir da página 14 (índice 13) caso falhe a transição
+            if (currentSlide >= 13 && !document.body.classList.contains('theme-radar')) {
+                document.body.classList.add('theme-radar');
+            } else if (currentSlide < 12 && document.body.classList.contains('theme-radar')) {
+                document.body.classList.remove('theme-radar');
+                const radarBtn = document.getElementById('radar-btn');
+                if(radarBtn) radarBtn.disabled = false;
+            }
+
+            slides[currentSlide].scrollTo(0,0);
+        }
+
+        function goToSlide(index) {
+            if(index < 0 || index >= totalSlides) return;
+            slides[currentSlide].classList.remove('active');
+            currentSlide = index;
+            slides[currentSlide].classList.add('active');
+            updatePagination();
+        }
+
+        function nextSlide() { goToSlide(currentSlide + 1); }
+        function prevSlide() { goToSlide(currentSlide - 1); }
+
+        // Garantia de Escopo Global contra erros de carregamento
+        window.nextSlide = nextSlide;
+        window.prevSlide = prevSlide;
+        window.goToSlide = goToSlide;
+
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowRight') nextSlide();
+            if(e.key === 'ArrowLeft') prevSlide();
+        });
+
+        // --- 2. Fullscreen & Panels ---
+        function toggleFullscreen() {
+            const doc = window.document;
+            const docEl = doc.documentElement;
+            const req = docEl.requestFullscreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+            const exit = doc.exitFullscreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+            
+            try {
+                if (!doc.fullscreenElement) {
+                    const promise = req ? req.call(docEl) : null;
+                    if (promise && promise.catch) {
+                        promise.catch(err => console.warn("Modo tela cheia bloqueado.", err));
+                    }
+                } else {
+                    const promise = exit ? exit.call(doc) : null;
+                    if (promise && promise.catch) {
+                        promise.catch(err => console.warn("Erro ao sair da tela cheia.", err));
+                    }
+                }
+            } catch (err) {
+                console.warn("Fullscreen error", err);
+            }
+        }
+
+        function toggleNotepad() {
+            document.getElementById('notepad-panel').classList.toggle('translate-x-full');
+            document.getElementById('bat-computer').classList.add('translate-x-full');
+        }
+
+        // --- Praise System ---
+        function triggerPraise(textHTML) {
+            const popup = document.getElementById('praise-popup');
+            const textContainer = document.getElementById('praise-text');
+            
+            textContainer.innerHTML = textHTML;
+            popup.classList.remove('hidden');
+            popup.classList.add('praise-anim');
+            
+            // Remove a animação e esconde depois de 2 segundos
+            setTimeout(() => {
+                popup.classList.remove('praise-anim');
+                popup.classList.add('hidden');
+            }, 2000);
+        }
+
+        // --- 3. GCPD Database (Bat-Computer) ---
+        const batDB = {
+            'vigilante': {
+                def: 'A person who tries in an unofficial way to prevent crime, or to catch and punish someone who has committed a crime.',
+                ex: 'Batman operates outside the law as a masked vigilante.',
+                q: 'Is it ever acceptable to be a vigilante?'
+            },
+            'corrupt': {
+                def: 'Dishonest or illegal behavior, especially by people in power.',
+                ex: 'The Riddler is targeting corrupt politicians in Gotham.',
+                q: 'What is the biggest cause of corruption in modern society?'
+            },
+            'clues': {
+                def: 'A sign or some information that helps you to solve a problem or a crime.',
+                ex: 'The detective found several hidden clues at the crime scene.',
+                q: 'If you were a detective, what is the first clue you would look for?'
+            },
+            'riddles': {
+                def: 'A type of question that describes something in a difficult and confusing way and has a clever or funny answer.',
+                ex: 'The killer left dangerous riddles for the police.',
+                q: 'Can you tell me a simple riddle?'
+            },
+            'fear': {
+                def: 'An unpleasant emotion caused by the threat of danger, pain, or harm.',
+                ex: 'Batman uses fear to control criminals.',
+                q: 'What is your biggest fear?'
+            },
+            'tool': {
+                def: 'A device or implement used to carry out a particular function.',
+                ex: 'Fear is a tool used to keep Gotham safe.',
+                q: 'What is the most important tool for a detective?'
+            },
+            'warning': {
+                def: 'A statement or event that indicates a possible danger or problem.',
+                ex: 'The Bat-Signal is a warning to criminals.',
+                q: 'Do you pay attention to warnings?'
+            },
+            'lies': {
+                def: 'False statements made with deliberate intent to deceive.',
+                ex: 'The Riddler wants to expose the lies of Gotham\'s elite.',
+                q: 'Is it ever okay to tell a lie?'
+            },
+            'vengeance': {
+                def: 'Hurting someone because they hurt you (revenge).',
+                ex: 'He is punishing the bad guys because he is angry, not just for justice.',
+                q: 'Is vengeance the same as justice?'
+            }
+        };
+
+        function openBatComputer(word) {
+            document.getElementById('notepad-panel').classList.add('translate-x-full');
+            const panel = document.getElementById('bat-computer');
+            const content = document.getElementById('bat-content');
+            const data = batDB[word.toLowerCase()];
+            
+            panel.classList.remove('translate-x-full');
+            
+            if(data) {
+                content.innerHTML = `
+                    <p class="text-bat-green opacity-50 mb-2">> MATCH FOUND</p>
+                    <h3 class="text-4xl font-black text-white uppercase mb-6 drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">${word}</h3>
+                    
+                    <p class="text-bat-green opacity-50 mb-1">> DEFINITION:</p>
+                    <p class="text-lg text-gray-300 mb-8 leading-relaxed">${data.def}</p>
+                    
+                    <p class="text-bat-green opacity-50 mb-1">> CASE EXAMPLE:</p>
+                    <p class="text-lg text-white font-bold italic border-l-2 border-bat-green pl-4 mb-8 bg-bat-green/10 p-4 rounded">${data.ex}</p>
+                    
+                    <p class="text-bat-green opacity-50 mb-1">> INTERROGATION PROMPT:</p>
+                    <p class="text-lg text-bat-green">${data.q}</p>
+                `;
+            } else {
+                content.innerHTML = `<p class="text-red-500 font-bold">> ERROR: CLASSIFIED OR NOT FOUND.</p>`;
+            }
+        }
+
+        function closeBatComputer() {
+            document.getElementById('bat-computer').classList.add('translate-x-full');
+        }
+
+        // --- 4. UV Flashlight Mechanic ---
+        const uvContainer = document.getElementById('uv-container');
+        const uvOverlay = document.getElementById('uv-overlay');
+
+        if(uvContainer && uvOverlay) {
+            uvOverlay.style.background = '#050505';
+            
+            uvContainer.addEventListener('mousemove', (e) => {
+                const rect = uvContainer.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Hide hint on hover
+                const hint = uvContainer.querySelector('.scan-hint');
+                if(hint) hint.style.opacity = '0';
+                
+                // Círculo luminoso transparente que revela o texto verde
+                uvOverlay.style.background = `radial-gradient(circle 140px at ${x}px ${y}px, transparent 0%, rgba(5,5,5,0.85) 50%, #050505 100%)`;
+            });
+            
+            uvContainer.addEventListener('mouseleave', () => {
+                uvOverlay.style.background = '#050505';
+                const hint = uvContainer.querySelector('.scan-hint');
+                if(hint) hint.style.opacity = '1';
+            });
+        }
+
+        // --- 5. THE RADAR SENSE EVENT (Transition) ---
+        function triggerRadarEvent() {
+            const btn = document.getElementById('radar-btn');
+            if (btn) btn.disabled = true;
+            
+            const pulse = document.getElementById('radar-pulse-layer');
+            if (pulse) pulse.classList.add('radar-active');
+            
+            // Troca o tema visual enquanto a onda cobre a tela
+            setTimeout(() => {
+                document.body.classList.add('theme-radar');
+            }, 1000); // Meio da animação
+
+            // Avança slide automaticamente
+            setTimeout(() => {
+                nextSlide(); 
+                if (pulse) pulse.classList.remove('radar-active');
+            }, 2000);
+        }
+
+        // --- 6. Rating ---
+        function rate(n) {
+            const drops = document.querySelectorAll('.horn-rating');
+            drops.forEach((d, i) => {
+                d.classList.toggle('grayscale', i >= n);
+                d.classList.toggle('opacity-30', i >= n);
+                if(i < n) d.style.filter = "drop-shadow(0 0 15px rgba(220,38,38,0.8))";
+                else d.style.filter = "none";
+            });
+            document.getElementById('rat-hub').classList.remove('hidden');
+            document.getElementById('star-c').innerText = n;
+        }
+
+        // Initialize
+        updatePagination();
+    </script>
+</body>
+</html>
